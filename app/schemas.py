@@ -7,18 +7,208 @@ class BoundingBox(BaseModel):
     ymax: float = Field(..., description="Bottom coordinate scaled 0-1000")
     xmax: float = Field(..., description="Right coordinate scaled 0-1000")
 
-class DetectedObject(BaseModel):
-    label: str = Field(..., description="Class or name of the detected object")
-    confidence: float = Field(..., ge=0.0, le=1.0)
-    bbox: Optional[BoundingBox] = None
-    is_hazard: bool = Field(default=False, description="True for red box, False for green box")
-    attributes: Dict[str, str] = Field(default_factory=dict, description="Minute details e.g. Make, Color, Specs")
+# --- Entity Profiles ---
 
-class OCRBlock(BaseModel):
-    text: str = Field(...)
-    location: str = Field(...)
-    confidence: float = Field(..., ge=0.0, le=1.0)
+class PersonProfile(BaseModel):
+    id: str = Field(..., description="e.g. Person 1")
+    apparent_gender_presentation: Optional[str] = Field(default="Not clearly visible")
+    apparent_age_range: Optional[str] = Field(default="Cannot be determined")
+    age_category: Optional[str] = Field(default="Cannot be determined")  # child, teenager, young adult, adult, older adult
+    
+    # Facial Characteristics
+    face_shape: Optional[str] = Field(default="Not clearly visible")
+    skin_tone_complexion: Optional[str] = Field(default="Not clearly visible")
+    hair_color: Optional[str] = Field(default="Not clearly visible")
+    hair_length: Optional[str] = Field(default="Not clearly visible")
+    hair_texture: Optional[str] = Field(default="Not clearly visible")
+    hairstyle: Optional[str] = Field(default="Not clearly visible")
+    eyebrow_shape: Optional[str] = Field(default="Not clearly visible")
+    eye_color: Optional[str] = Field(default="Not clearly visible")
+    facial_hair: Optional[str] = Field(default="Not clearly visible")
+    facial_expression: Optional[str] = Field(default="Not clearly visible")
+    gaze_direction: Optional[str] = Field(default="Not clearly visible")
+    glasses_eyewear: Optional[str] = Field(default="Not clearly visible")
+    visible_marks: Optional[str] = Field(default="Not clearly visible")
+    
+    # Physical Appearance
+    relative_height_category: Optional[str] = Field(default="Cannot be determined from this image")
+    body_build: Optional[str] = Field(default="Not clearly visible")
+    posture: Optional[str] = Field(default="Not clearly visible")
+    pose: Optional[str] = Field(default="Not clearly visible")
+    
+    # Clothing & Accessories
+    clothing_summary: Optional[str] = Field(default="Not clearly visible")
+    headwear: Optional[str] = Field(default="None visible")
+    top_garment: Optional[str] = Field(default="Not clearly visible")
+    bottom_garment: Optional[str] = Field(default="Not clearly visible")
+    footwear: Optional[str] = Field(default="Not clearly visible")
+    accessories: List[str] = Field(default_factory=list)
+    
+    # Activity & Spatial
+    activity: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
     bbox: Optional[BoundingBox] = None
+
+class AnimalProfile(BaseModel):
+    id: str = Field(..., description="e.g. Animal 1")
+    species: str = Field(default="Not clearly visible")
+    animal_type: str = Field(default="Unknown")
+    breed: Optional[str] = Field(default="Cannot be determined")
+    domestic_or_wild: Optional[str] = Field(default="Cannot be determined")
+    approx_size: Optional[str] = Field(default="Not clearly visible")
+    coat_skin_pattern: Optional[str] = Field(default="Not clearly visible")
+    color: Optional[str] = Field(default="Not clearly visible")
+    distinguishing_features: Optional[str] = Field(default="Not clearly visible")
+    pose_behavior: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class VehicleProfile(BaseModel):
+    id: str = Field(..., description="e.g. Vehicle 1")
+    vehicle_type: str = Field(default="Vehicle")  # Car, SUV, Truck, Bus, Motorcycle, Bicycle, Boat, etc.
+    make_brand: Optional[str] = Field(default="Cannot be determined")
+    model: Optional[str] = Field(default="Cannot be determined")
+    body_style: Optional[str] = Field(default="Not clearly visible")
+    color: Optional[str] = Field(default="Not clearly visible")
+    visible_wheels: Optional[str] = Field(default="Not clearly visible")
+    license_plate_info: Optional[str] = Field(default="Not clearly visible")
+    condition: Optional[str] = Field(default="Not clearly visible")
+    activity_state: Optional[str] = Field(default="Parked / Stationary")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class ObjectProfile(BaseModel):
+    id: str = Field(..., description="e.g. Object 1")
+    name: str = Field(..., description="Object name")
+    category: str = Field(default="General Object")
+    shape: Optional[str] = Field(default="Not clearly visible")
+    color: Optional[str] = Field(default="Not clearly visible")
+    material_texture: Optional[str] = Field(default="Not clearly visible")
+    brand_logo: Optional[str] = Field(default="Cannot be determined")
+    functional_use: Optional[str] = Field(default="Not clearly visible")
+    condition: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class BuildingProfile(BaseModel):
+    id: str = Field(..., description="e.g. Building 1")
+    building_type: str = Field(default="Structure")  # House, Office, Shop, Temple, Bridge, etc.
+    architectural_style: Optional[str] = Field(default="Not clearly visible")
+    visible_floors: Optional[str] = Field(default="Cannot be determined")
+    exterior_materials: Optional[str] = Field(default="Not clearly visible")
+    roof_type: Optional[str] = Field(default="Not clearly visible")
+    colors: Optional[str] = Field(default="Not clearly visible")
+    signage_logos: Optional[str] = Field(default="Not clearly visible")
+    condition: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Background")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class PlantProfile(BaseModel):
+    id: str = Field(..., description="e.g. Plant 1")
+    plant_type: str = Field(default="Plant / Vegetation")  # Tree, Flower, Shrub, Grass, Indoor Plant
+    possible_species: Optional[str] = Field(default="Cannot be determined")
+    leaf_flower_color: Optional[str] = Field(default="Not clearly visible")
+    growth_pattern: Optional[str] = Field(default="Not clearly visible")
+    indoor_outdoor_context: Optional[str] = Field(default="Outdoor")
+    spatial_position: Optional[str] = Field(default="Background")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class FoodProfile(BaseModel):
+    id: str = Field(..., description="e.g. Food 1")
+    item_name: str = Field(default="Food / Beverage Item")
+    category: str = Field(default="Prepared Dish")
+    visible_ingredients: List[str] = Field(default_factory=list)
+    presentation_container: Optional[str] = Field(default="Not clearly visible")
+    portion_size_est: Optional[str] = Field(default="Cannot be determined")
+    cooking_style: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class DocumentTextProfile(BaseModel):
+    id: str = Field(..., description="e.g. Text Block 1")
+    document_type: str = Field(default="Signboard / Label / Document")
+    extracted_text: str = Field(..., description="Readable text snippet")
+    heading_labels: Optional[str] = Field(default="Not clearly visible")
+    readability_status: str = Field(default="Fully readable")  # Fully readable | Partially readable
+    language_script: Optional[str] = Field(default="English")
+    spatial_position: Optional[str] = Field(default="Top-center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class ElectronicDeviceProfile(BaseModel):
+    id: str = Field(..., description="e.g. Device 1")
+    device_category: str = Field(default="Electronic Device")  # Phone, Laptop, Camera, TV, Tablet
+    brand_manufacturer: Optional[str] = Field(default="Cannot be determined")
+    model_series: Optional[str] = Field(default="Cannot be determined")
+    color_finish: Optional[str] = Field(default="Not clearly visible")
+    visible_features: Optional[str] = Field(default="Not clearly visible")
+    screen_status: Optional[str] = Field(default="Not clearly visible")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+class ClothingItemProfile(BaseModel):
+    id: str = Field(..., description="e.g. Fashion Item 1")
+    item_type: str = Field(default="Garment / Accessory")
+    color_pattern: Optional[str] = Field(default="Not clearly visible")
+    material_appearance: Optional[str] = Field(default="Not clearly visible")
+    style_fit: Optional[str] = Field(default="Not clearly visible")
+    brand_logo: Optional[str] = Field(default="Cannot be determined")
+    condition: Optional[str] = Field(default="Good condition")
+    spatial_position: Optional[str] = Field(default="Center")
+    confidence: str = Field(default="High")
+    bbox: Optional[BoundingBox] = None
+
+# --- Categorized Entities Container ---
+
+class DetectedEntities(BaseModel):
+    people: List[PersonProfile] = Field(default_factory=list)
+    animals: List[AnimalProfile] = Field(default_factory=list)
+    vehicles: List[VehicleProfile] = Field(default_factory=list)
+    objects: List[ObjectProfile] = Field(default_factory=list)
+    buildings: List[BuildingProfile] = Field(default_factory=list)
+    plants: List[PlantProfile] = Field(default_factory=list)
+    food: List[FoodProfile] = Field(default_factory=list)
+    documents: List[DocumentTextProfile] = Field(default_factory=list)
+    electronics: List[ElectronicDeviceProfile] = Field(default_factory=list)
+    fashion_items: List[ClothingItemProfile] = Field(default_factory=list)
+
+# --- Analysis & Scene Components ---
+
+class SceneOverview(BaseModel):
+    scene_type: str = Field(default="General Visual Scene")
+    main_subjects: List[str] = Field(default_factory=list)
+    environment_setting: str = Field(default="Indoor / Outdoor Scene")
+    lighting_exposure: str = Field(default="Balanced Natural Lighting")
+    image_composition: Dict[str, str] = Field(default_factory=dict) # framing, focus, camera angle, orientation, aspect ratio
+    important_interactions: List[str] = Field(default_factory=list)
+
+class SpatialRelationship(BaseModel):
+    entity_a: str = Field(..., description="Subject 1")
+    relationship: str = Field(..., description="e.g. Standing beside, Holding, Behind")
+    entity_b: str = Field(..., description="Subject 2 / Object")
+
+class ObservedVsInferred(BaseModel):
+    directly_observed: List[str] = Field(default_factory=list)
+    reasonably_inferred: List[str] = Field(default_factory=list)
+    unknown_unclear: List[str] = Field(default_factory=list)
+
+class EntityComparison(BaseModel):
+    category_name: str = Field(..., description="e.g. People Comparison, Vehicle Comparison")
+    compared_entities: List[str] = Field(..., description="e.g. ['Person 1', 'Person 2']")
+    comparison_attributes: Dict[str, List[str]] = Field(default_factory=dict) # e.g. {"Relative Height": ["Taller", "Shorter"], "Clothing": ["Red shirt", "Blue jacket"]}
+
+class UserQueryAnswer(BaseModel):
+    user_query: str
+    direct_answer: str
+    confidence: str = Field(default="High")
 
 class ContentAnalysis(BaseModel):
     scenarios_detected: List[str] = Field(default_factory=list)
@@ -29,7 +219,7 @@ class ContentAnalysis(BaseModel):
     accident: bool = Field(default=False)
     crowd: bool = Field(default=False)
     animal: bool = Field(default=False)
-    details: str = Field(default="")
+    details: str = Field(default="No hazardous scenarios detected.")
 
 class ContentSafety(BaseModel):
     is_safe: bool = Field(default=True)
@@ -47,6 +237,30 @@ class ImageMetadata(BaseModel):
     aspect_ratio: str
     dominant_colors: List[str] = Field(default_factory=list)
 
+class ImageOverview(BaseModel):
+    image_type: str = Field(default="General Photograph")
+    main_scene: str = Field(default="Unspecified Scene")
+    primary_subjects: List[str] = Field(default_factory=list)
+    entity_counts: Dict[str, int] = Field(default_factory=dict)
+
+# --- Legacy / Standard Objects for Overlay ---
+
+class DetectedObject(BaseModel):
+    label: str = Field(...)
+    category: str = Field(default="objects")  # "people", "animals", "vehicles", "objects", "buildings", "plants", "food", "documents", "electronics"
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    bbox: Optional[BoundingBox] = None
+    is_hazard: bool = Field(default=False)
+    attributes: Dict[str, str] = Field(default_factory=dict)
+
+class OCRBlock(BaseModel):
+    text: str = Field(...)
+    location: str = Field(...)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    bbox: Optional[BoundingBox] = None
+
+# --- Main API Response Schema ---
+
 class ImageAnalysisResponse(BaseModel):
     id: str
     status: str
@@ -55,11 +269,17 @@ class ImageAnalysisResponse(BaseModel):
     overall_confidence: float
     caption: str
     scene: str
-    minute_details: Dict[str, str] = Field(default_factory=dict, description="Side-by-side minute details")
+    overview: ImageOverview
+    entities: DetectedEntities = Field(default_factory=DetectedEntities)
+    scene_overview: SceneOverview = Field(default_factory=SceneOverview)
+    spatial_relationships: List[SpatialRelationship] = Field(default_factory=list)
+    observed_vs_inferred: ObservedVsInferred = Field(default_factory=ObservedVsInferred)
+    comparisons: List[EntityComparison] = Field(default_factory=list)
+    user_query_answer: Optional[UserQueryAnswer] = None
     objects: List[DetectedObject] = Field(default_factory=list)
     ocr: List[OCRBlock] = Field(default_factory=list)
-    content_analysis: ContentAnalysis
-    safety: ContentSafety
+    content_analysis: ContentAnalysis = Field(default_factory=ContentAnalysis)
+    safety: ContentSafety = Field(default_factory=ContentSafety)
     metadata: ImageMetadata
     processing_time_ms: float
     summary: str
