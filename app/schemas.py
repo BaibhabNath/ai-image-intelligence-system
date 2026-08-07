@@ -9,14 +9,16 @@ class BoundingBox(BaseModel):
 
 class DetectedObject(BaseModel):
     label: str = Field(..., description="Class or name of the detected object")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Detection confidence score")
-    bbox: Optional[BoundingBox] = Field(None, description="Normalized bounding box coordinates")
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    bbox: Optional[BoundingBox] = None
+    is_hazard: bool = Field(default=False, description="True for red box, False for green box")
+    attributes: Dict[str, str] = Field(default_factory=dict, description="Minute details e.g. Make, Color, Specs")
 
 class OCRBlock(BaseModel):
-    text: str = Field(..., description="Extracted text content")
-    location: str = Field(..., description="Layout region description")
+    text: str = Field(...)
+    location: str = Field(...)
     confidence: float = Field(..., ge=0.0, le=1.0)
-    bbox: Optional[BoundingBox] = Field(None, description="Bounding box of text block")
+    bbox: Optional[BoundingBox] = None
 
 class ContentAnalysis(BaseModel):
     scenarios_detected: List[str] = Field(default_factory=list)
@@ -53,6 +55,7 @@ class ImageAnalysisResponse(BaseModel):
     overall_confidence: float
     caption: str
     scene: str
+    minute_details: Dict[str, str] = Field(default_factory=dict, description="Side-by-side minute details")
     objects: List[DetectedObject] = Field(default_factory=list)
     ocr: List[OCRBlock] = Field(default_factory=list)
     content_analysis: ContentAnalysis
