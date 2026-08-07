@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Intelligence System | REST API & Review Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">👁️</div>
+                <div class="brand-text">
+                    <h1>AI Image Intelligence</h1>
+                    <span class="badge">Track 1 REST Engine</span>
+                </div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-btn active" data-tab="analyzer">📸 Image Analyzer</button>
+                <button class="nav-btn" data-tab="review">🛡️ Human Review Queue <span id="review-count" class="pill-count">0</span></button>
+                <button class="nav-btn" data-tab="benchmarks">📊 Model Benchmarks</button>
+                <a href="/docs" target="_blank" class="nav-link">📖 API Docs</a>
+            </nav>
+        </header>
+
+        <main class="content-area">
+            <section id="tab-analyzer" class="tab-pane active">
+                <div class="analyzer-grid">
+                    <div class="card control-card">
+                        <h2>Upload & Configure</h2>
+                        <form id="analyze-form">
+                            <div class="form-group">
+                                <label>Model Pipeline</label>
+                                <select id="model-select" class="form-control">
+                                    <option value="gemini-flash-2.5" selected>Google Gemini 2.5 Flash (Fast, Recommended)</option>
+                                    <option value="gemini-pro-2.5">Google Gemini 2.5 Pro (Deep Precision)</option>
+                                    <option value="fast-vision-local">Fast Vision Baseline Engine (Offline / Local)</option>
+                                </select>
+                            </div>
+                            <div class="upload-dropzone" id="dropzone">
+                                <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+                                <div class="dropzone-content">
+                                    <div class="drop-icon">🖼️</div>
+                                    <p class="drop-title">Drag & drop image here</p>
+                                    <p class="drop-sub">or click to browse (JPG, PNG, WEBP)</p>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btn-analyze">Run Intelligence Pipeline</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
