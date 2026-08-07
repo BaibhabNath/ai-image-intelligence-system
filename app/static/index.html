@@ -22,7 +22,7 @@
             </div>
             <nav class="nav-tabs">
                 <button class="nav-btn active" data-tab="analyzer">📸 Image Analyzer</button>
-                <button class="nav-btn" data-tab="review">🛡️ Human Review Queue <span id="review-count" class="pill-count">0</span></button>
+                <button class="nav-btn" data-tab="review">🛡️ Human Review Queue <span id="review-count" class="pill-count">2</span></button>
                 <button class="nav-btn" data-tab="benchmarks">📊 Model Benchmarks</button>
                 <button class="nav-btn" data-tab="dataset">📁 Test Dataset</button>
                 <a href="/docs" target="_blank" class="nav-link">📖 API Docs</a>
@@ -34,7 +34,7 @@
             <!-- TAB 1: IMAGE ANALYZER -->
             <section id="tab-analyzer" class="tab-pane active">
                 <div class="analyzer-grid">
-                    <!-- Left: Control & Upload Panel -->
+                    <!-- Left: Control Panel -->
                     <div class="card control-card">
                         <h2>Upload & Configure</h2>
                         <form id="analyze-form">
@@ -65,7 +65,7 @@
 
                             <div class="form-group">
                                 <label>Image URL</label>
-                                <input type="url" id="url-input" class="form-control" placeholder="https://example.com/image.jpg">
+                                <input type="url" id="url-input" class="form-control" placeholder="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800">
                             </div>
 
                             <button type="submit" class="btn btn-primary" id="btn-analyze">
@@ -75,10 +75,10 @@
                         </form>
                     </div>
 
-                    <!-- Right: Visualizer & Results Panel -->
+                    <!-- Right: Intelligence Output -->
                     <div class="card result-card">
                         <div class="result-header">
-                            <h2>Intelligence Output</h2>
+                            <h2>Intelligence Output & Minute Breakdown</h2>
                             <div class="result-actions">
                                 <button class="btn btn-sm btn-secondary" id="btn-copy-json">Copy JSON</button>
                             </div>
@@ -91,31 +91,38 @@
                         </div>
 
                         <div id="results-view" class="results-view hidden">
-                            <!-- Summary Bar -->
+                            <!-- Executive Summary -->
                             <div class="summary-banner" id="summary-banner">
                                 <div class="summary-text" id="res-summary">Executive Summary loading...</div>
                                 <div class="status-badge" id="res-status">Success</div>
                             </div>
 
-                            <!-- Image Description Card -->
+                            <!-- Narrative Description -->
                             <div class="caption-card">
                                 <div class="caption-header">
                                     <span class="caption-icon">📝</span>
-                                    <span class="caption-title">Image Content Description</span>
+                                    <span class="caption-title">Detailed Visual Narrative</span>
                                 </div>
                                 <p class="caption-text" id="res-caption">Image description loading...</p>
                             </div>
 
-                            <!-- Image & Overlay Canvas -->
+                            <!-- Image Preview & Canvas Overlay -->
                             <div class="image-viewer-container">
                                 <div class="canvas-wrapper">
                                     <img id="preview-img" alt="Analysis preview">
                                     <canvas id="overlay-canvas"></canvas>
                                 </div>
                                 <div class="overlay-legend">
-                                    <span class="legend-item object-legend">■ Detected Objects</span>
-                                    <span class="legend-item ocr-legend">■ Layout OCR</span>
+                                    <span class="legend-item object-legend">🟢 Safe Objects</span>
+                                    <span class="legend-item hazard-legend">🔴 Flagged / Hazard</span>
+                                    <span class="legend-item ocr-legend">🟣 OCR Layout</span>
                                 </div>
+                            </div>
+
+                            <!-- Minute Details Side-by-Side Table -->
+                            <div class="minute-card">
+                                <div class="minute-title">🔍 Minute Feature Breakdown</div>
+                                <div class="minute-grid" id="minute-grid"></div>
                             </div>
 
                             <!-- Metrics Pills -->
