@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ai-image-intelligence:
+    build: .
+    container_name: ai_image_intelligence_service
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PORT=8000
+    restart: unless-stopped
+    volumes:
+      - .:/app
