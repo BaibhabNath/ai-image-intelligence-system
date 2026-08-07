@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Intelligence System | REST API & Review Studio</title>
+    <title>Universal Image Analysis & Entity Extraction Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -16,15 +16,15 @@
             <div class="brand">
                 <div class="brand-icon">👁️</div>
                 <div class="brand-text">
-                    <h1>AI Image Intelligence</h1>
-                    <span class="badge">Track 1 REST Engine</span>
+                    <h1>Universal Image Intelligence</h1>
+                    <span class="badge">Multimodal Entity Property Extraction</span>
                 </div>
             </div>
             <nav class="nav-tabs">
-                <button class="nav-btn active" data-tab="analyzer">📸 Image Analyzer</button>
-                <button class="nav-btn" data-tab="review">🛡️ Human Review Queue <span id="review-count" class="pill-count">2</span></button>
+                <button class="nav-btn active" data-tab="analyzer">📸 Visual Analyzer</button>
+                <button class="nav-btn" data-tab="review">🛡️ Audit Queue <span id="review-count" class="pill-count">0</span></button>
                 <button class="nav-btn" data-tab="benchmarks">📊 Model Benchmarks</button>
-                <button class="nav-btn" data-tab="dataset">📁 Test Dataset</button>
+                <button class="nav-btn" data-tab="dataset">📁 Sample Scenes</button>
                 <a href="/docs" target="_blank" class="nav-link">📖 API Docs</a>
             </nav>
         </header>
@@ -34,17 +34,23 @@
             <!-- TAB 1: IMAGE ANALYZER -->
             <section id="tab-analyzer" class="tab-pane active">
                 <div class="analyzer-grid">
-                    <!-- Left: Control Panel -->
+                    <!-- Left: Control & Upload Panel -->
                     <div class="card control-card">
-                        <h2>Upload & Configure</h2>
+                        <h2>Inspect & Configure</h2>
                         <form id="analyze-form">
                             <div class="form-group">
                                 <label>Model Pipeline</label>
                                 <select id="model-select" class="form-control">
-                                    <option value="gemini-flash-2.5" selected>Google Gemini 2.5 Flash (Fast, Recommended)</option>
+                                    <option value="gemini-flash-2.5" selected>Google Gemini 2.5 Flash (Fast Multimodal)</option>
                                     <option value="gemini-pro-2.5">Google Gemini 2.5 Pro (Deep Precision)</option>
                                     <option value="fast-vision-local">Fast Vision Baseline Engine (Offline / Local)</option>
                                 </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Specific Question / User Query (Optional Priority)</label>
+                                <input type="text" id="user-query-input" class="form-control" placeholder="e.g. What phone is this? / What is Person 1 wearing?">
+                                <small class="form-help">Answers your specific question first before detailed entity breakdown.</small>
                             </div>
 
                             <div class="form-group">
@@ -65,67 +71,71 @@
 
                             <div class="form-group">
                                 <label>Image URL</label>
-                                <input type="url" id="url-input" class="form-control" placeholder="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800">
+                                <input type="url" id="url-input" class="form-control" placeholder="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a">
                             </div>
 
                             <button type="submit" class="btn btn-primary" id="btn-analyze">
                                 <span class="spinner hidden" id="btn-spinner"></span>
-                                <span id="btn-text">Run Intelligence Pipeline</span>
+                                <span id="btn-text">Extract Entity Properties</span>
                             </button>
                         </form>
                     </div>
 
-                    <!-- Right: Intelligence Output -->
+                    <!-- Right: Visualizer & Results Panel -->
                     <div class="card result-card">
                         <div class="result-header">
-                            <h2>Intelligence Output & Minute Breakdown</h2>
+                            <h2>Universal Extraction Insights</h2>
                             <div class="result-actions">
                                 <button class="btn btn-sm btn-secondary" id="btn-copy-json">Copy JSON</button>
                             </div>
                         </div>
 
                         <div id="empty-state" class="empty-state">
-                            <div class="empty-icon">📊</div>
-                            <h3>No Analysis Generated Yet</h3>
-                            <p>Upload an image or enter a URL above to inspect bounding boxes, OCR, and safety insights.</p>
+                            <div class="empty-icon">🔍</div>
+                            <h3>No Scene Analyzed Yet</h3>
+                            <p>Upload an image or enter an image URL to extract entities, properties, spatial layout, and bounding boxes.</p>
                         </div>
 
                         <div id="results-view" class="results-view hidden">
-                            <!-- Executive Summary -->
+                            <!-- User Query Priority Answer Box -->
+                            <div id="query-answer-card" class="query-answer-card hidden">
+                                <div class="qa-header">
+                                    <span class="qa-icon">❓</span>
+                                    <span class="qa-title" id="qa-question">User Question</span>
+                                    <span class="pill-badge" id="qa-confidence">High Confidence</span>
+                                </div>
+                                <p class="qa-body" id="qa-answer">Direct answer text loading...</p>
+                            </div>
+
+                            <!-- Summary Banner & Overview -->
                             <div class="summary-banner" id="summary-banner">
-                                <div class="summary-text" id="res-summary">Executive Summary loading...</div>
+                                <div class="summary-main">
+                                    <span class="summary-title" id="res-scene">Urban Scene</span>
+                                    <div class="summary-text" id="res-summary">Executive Summary loading...</div>
+                                </div>
                                 <div class="status-badge" id="res-status">Success</div>
                             </div>
 
-                            <!-- Narrative Description -->
-                            <div class="caption-card">
-                                <div class="caption-header">
-                                    <span class="caption-icon">📝</span>
-                                    <span class="caption-title">Detailed Visual Narrative</span>
-                                </div>
-                                <p class="caption-text" id="res-caption">Image description loading...</p>
-                            </div>
+                            <!-- Entity Count Pills Summary -->
+                            <div class="entity-counts-bar" id="entity-counts-bar"></div>
 
-                            <!-- Image Preview & Canvas Overlay -->
+                            <!-- Image & Overlay Canvas -->
                             <div class="image-viewer-container">
                                 <div class="canvas-wrapper">
                                     <img id="preview-img" alt="Analysis preview">
                                     <canvas id="overlay-canvas"></canvas>
                                 </div>
                                 <div class="overlay-legend">
-                                    <span class="legend-item object-legend">🟢 Safe Objects</span>
-                                    <span class="legend-item hazard-legend">🔴 Flagged / Hazard</span>
-                                    <span class="legend-item ocr-legend">🟣 OCR Layout</span>
+                                    <span class="legend-item leg-people">■ People</span>
+                                    <span class="legend-item leg-animals">■ Animals</span>
+                                    <span class="legend-item leg-vehicles">■ Vehicles</span>
+                                    <span class="legend-item leg-objects">■ Objects</span>
+                                    <span class="legend-item leg-buildings">■ Buildings</span>
+                                    <span class="legend-item leg-docs">■ Text/Docs</span>
                                 </div>
                             </div>
 
-                            <!-- Minute Details Side-by-Side Table -->
-                            <div class="minute-card">
-                                <div class="minute-title">🔍 Minute Feature Breakdown</div>
-                                <div class="minute-grid" id="minute-grid"></div>
-                            </div>
-
-                            <!-- Metrics Pills -->
+                            <!-- Composition & Performance Metrics -->
                             <div class="metrics-grid">
                                 <div class="metric-pill">
                                     <span class="m-label">Latency</span>
@@ -136,8 +146,8 @@
                                     <span class="m-value" id="m-confidence">0%</span>
                                 </div>
                                 <div class="metric-pill">
-                                    <span class="m-label">Scene</span>
-                                    <span class="m-value" id="m-scene">-</span>
+                                    <span class="m-label">Image Format</span>
+                                    <span class="m-value" id="m-format">-</span>
                                 </div>
                                 <div class="metric-pill">
                                     <span class="m-label">Safety Status</span>
@@ -145,24 +155,72 @@
                                 </div>
                             </div>
 
-                            <!-- Tabbed Insights -->
+                            <!-- Inner View Tabs -->
                             <div class="insights-box">
                                 <div class="insights-tabs">
-                                    <button class="in-tab active" data-in="objects">Objects (<span id="count-objects">0</span>)</button>
-                                    <button class="in-tab" data-in="ocr">OCR Layout (<span id="count-ocr">0</span>)</button>
-                                    <button class="in-tab" data-in="content">Scenarios & Safety</button>
+                                    <button class="in-tab active" data-in="entities">Categorized Entities</button>
+                                    <button class="in-tab" data-in="comparisons">Comparison Mode</button>
+                                    <button class="in-tab" data-in="scene">Scene & Spatial</button>
+                                    <button class="in-tab" data-in="evidence">Observed vs Inferred</button>
+                                    <button class="in-tab" data-in="safety">Moderation & Safety</button>
                                     <button class="in-tab" data-in="raw">Raw JSON</button>
                                 </div>
 
-                                <div class="in-content active" id="in-objects">
-                                    <ul class="list-group" id="list-objects"></ul>
+                                <div class="in-content active" id="in-entities">
+                                    <div class="categories-accordion" id="categories-accordion"></div>
                                 </div>
-                                <div class="in-content" id="in-ocr">
-                                    <ul class="list-group" id="list-ocr"></ul>
+
+                                <div class="in-content" id="in-comparisons">
+                                    <div id="comparisons-container">
+                                        <p class="text-muted">No multiple entities of the same category detected for comparison.</p>
+                                    </div>
                                 </div>
-                                <div class="in-content" id="in-content">
+
+                                <div class="in-content" id="in-scene">
+                                    <div class="scene-details-card">
+                                        <div class="caption-card" style="margin-bottom: 12px;">
+                                            <h4>Image Caption & Description</h4>
+                                            <p id="res-caption" style="margin-top: 6px; color: var(--text-color);">Caption loading...</p>
+                                        </div>
+
+                                        <div class="scene-grid">
+                                            <div class="scene-item">
+                                                <strong>Environment Setting:</strong> <span id="sc-setting">-</span>
+                                            </div>
+                                            <div class="scene-item">
+                                                <strong>Lighting & Exposure:</strong> <span id="sc-lighting">-</span>
+                                            </div>
+                                            <div class="scene-item">
+                                                <strong>Composition / Framing:</strong> <span id="sc-framing">-</span>
+                                            </div>
+                                        </div>
+
+                                        <h4 style="margin-top: 16px; margin-bottom: 8px;">Spatial & Visual Relationships</h4>
+                                        <ul class="relationship-list" id="spatial-relationships-list"></ul>
+                                    </div>
+                                </div>
+
+                                <div class="in-content" id="in-evidence">
+                                    <div class="evidence-grid">
+                                        <div class="evidence-column col-observed">
+                                            <div class="ev-header">👁️ Directly Observed</div>
+                                            <ul class="ev-list" id="list-observed"></ul>
+                                        </div>
+                                        <div class="evidence-column col-inferred">
+                                            <div class="ev-header">💡 Reasonably Inferred</div>
+                                            <ul class="ev-list" id="list-inferred"></ul>
+                                        </div>
+                                        <div class="evidence-column col-unknown">
+                                            <div class="ev-header">❓ Unknown / Unclear</div>
+                                            <ul class="ev-list" id="list-unknown"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="in-content" id="in-safety">
                                     <div class="scenario-details" id="scenario-details"></div>
                                 </div>
+
                                 <div class="in-content" id="in-raw">
                                     <pre class="json-viewer"><code id="json-code"></code></pre>
                                 </div>
@@ -176,8 +234,8 @@
             <section id="tab-review" class="tab-pane">
                 <div class="card">
                     <div class="review-header">
-                        <h2>Human-in-the-loop Review Queue</h2>
-                        <p>Flagged or borderline images automatically route here for auditor approval.</p>
+                        <h2>Human-in-the-loop Audit Queue</h2>
+                        <p>Flagged images or safety edge cases automatically route here for human auditor verification.</p>
                     </div>
                     <div id="review-list" class="review-list">
                         <p class="text-muted">Loading review queue...</p>
@@ -188,8 +246,8 @@
             <!-- TAB 3: MODEL BENCHMARKS -->
             <section id="tab-benchmarks" class="tab-pane">
                 <div class="card">
-                    <h2>Model Selection & Performance Benchmarking</h2>
-                    <p class="subtitle">Evaluated across 1,000 standard vision intelligence evaluation datasets.</p>
+                    <h2>Model Benchmarking & Evaluation</h2>
+                    <p class="subtitle">Benchmarked across 1,000 standard multi-dimensional visual evaluation samples.</p>
                     <div class="table-responsive">
                         <table class="benchmark-table">
                             <thead>
@@ -203,22 +261,18 @@
                                     <th>Key Advantage</th>
                                 </tr>
                             </thead>
-                            <tbody id="benchmark-rows">
-                                <!-- Dynamic rows -->
-                            </tbody>
+                            <tbody id="benchmark-rows"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 4: TEST DATASET -->
+            <!-- TAB 4: SAMPLE SCENES -->
             <section id="tab-dataset" class="tab-pane">
                 <div class="card">
-                    <h2>Test Dataset & Sample Outputs</h2>
-                    <p class="subtitle">Click any sample to execute immediate pipeline benchmark.</p>
-                    <div class="dataset-grid" id="dataset-grid">
-                        <!-- Dynamic sample cards -->
-                    </div>
+                    <h2>Sample Multimodal Test Scenes</h2>
+                    <p class="subtitle">Click any sample scene below to test real-time entity extraction.</p>
+                    <div class="dataset-grid" id="dataset-grid"></div>
                 </div>
             </section>
         </main>
