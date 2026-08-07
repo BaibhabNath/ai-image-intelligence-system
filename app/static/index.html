@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Header / Navigation -->
         <header class="app-header">
             <div class="brand">
                 <div class="brand-icon">👁️</div>
@@ -23,13 +24,17 @@
                 <button class="nav-btn active" data-tab="analyzer">📸 Image Analyzer</button>
                 <button class="nav-btn" data-tab="review">🛡️ Human Review Queue <span id="review-count" class="pill-count">0</span></button>
                 <button class="nav-btn" data-tab="benchmarks">📊 Model Benchmarks</button>
+                <button class="nav-btn" data-tab="dataset">📁 Test Dataset</button>
                 <a href="/docs" target="_blank" class="nav-link">📖 API Docs</a>
             </nav>
         </header>
 
+        <!-- Main Content Area -->
         <main class="content-area">
+            <!-- TAB 1: IMAGE ANALYZER -->
             <section id="tab-analyzer" class="tab-pane active">
                 <div class="analyzer-grid">
+                    <!-- Left: Control & Upload Panel -->
                     <div class="card control-card">
                         <h2>Upload & Configure</h2>
                         <form id="analyze-form">
@@ -41,6 +46,12 @@
                                     <option value="fast-vision-local">Fast Vision Baseline Engine (Offline / Local)</option>
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label>Gemini API Key (Optional Override)</label>
+                                <input type="password" id="api-key-input" class="form-control" placeholder="Leave blank to use server .env key">
+                            </div>
+
                             <div class="upload-dropzone" id="dropzone">
                                 <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
                                 <div class="dropzone-content">
@@ -49,13 +60,163 @@
                                     <p class="drop-sub">or click to browse (JPG, PNG, WEBP)</p>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" id="btn-analyze">Run Intelligence Pipeline</button>
+
+                            <div class="divider">OR</div>
+
+                            <div class="form-group">
+                                <label>Image URL</label>
+                                <input type="url" id="url-input" class="form-control" placeholder="https://example.com/image.jpg">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btn-analyze">
+                                <span class="spinner hidden" id="btn-spinner"></span>
+                                <span id="btn-text">Run Intelligence Pipeline</span>
+                            </button>
                         </form>
+                    </div>
+
+                    <!-- Right: Visualizer & Results Panel -->
+                    <div class="card result-card">
+                        <div class="result-header">
+                            <h2>Intelligence Output</h2>
+                            <div class="result-actions">
+                                <button class="btn btn-sm btn-secondary" id="btn-copy-json">Copy JSON</button>
+                            </div>
+                        </div>
+
+                        <div id="empty-state" class="empty-state">
+                            <div class="empty-icon">📊</div>
+                            <h3>No Analysis Generated Yet</h3>
+                            <p>Upload an image or enter a URL above to inspect bounding boxes, OCR, and safety insights.</p>
+                        </div>
+
+                        <div id="results-view" class="results-view hidden">
+                            <!-- Summary Bar -->
+                            <div class="summary-banner" id="summary-banner">
+                                <div class="summary-text" id="res-summary">Executive Summary loading...</div>
+                                <div class="status-badge" id="res-status">Success</div>
+                            </div>
+
+                            <!-- Image Description Card -->
+                            <div class="caption-card">
+                                <div class="caption-header">
+                                    <span class="caption-icon">📝</span>
+                                    <span class="caption-title">Image Content Description</span>
+                                </div>
+                                <p class="caption-text" id="res-caption">Image description loading...</p>
+                            </div>
+
+                            <!-- Image & Overlay Canvas -->
+                            <div class="image-viewer-container">
+                                <div class="canvas-wrapper">
+                                    <img id="preview-img" alt="Analysis preview">
+                                    <canvas id="overlay-canvas"></canvas>
+                                </div>
+                                <div class="overlay-legend">
+                                    <span class="legend-item object-legend">■ Detected Objects</span>
+                                    <span class="legend-item ocr-legend">■ Layout OCR</span>
+                                </div>
+                            </div>
+
+                            <!-- Metrics Pills -->
+                            <div class="metrics-grid">
+                                <div class="metric-pill">
+                                    <span class="m-label">Latency</span>
+                                    <span class="m-value" id="m-latency">0 ms</span>
+                                </div>
+                                <div class="metric-pill">
+                                    <span class="m-label">Confidence</span>
+                                    <span class="m-value" id="m-confidence">0%</span>
+                                </div>
+                                <div class="metric-pill">
+                                    <span class="m-label">Scene</span>
+                                    <span class="m-value" id="m-scene">-</span>
+                                </div>
+                                <div class="metric-pill">
+                                    <span class="m-label">Safety Status</span>
+                                    <span class="m-value" id="m-safety">Safe</span>
+                                </div>
+                            </div>
+
+                            <!-- Tabbed Insights -->
+                            <div class="insights-box">
+                                <div class="insights-tabs">
+                                    <button class="in-tab active" data-in="objects">Objects (<span id="count-objects">0</span>)</button>
+                                    <button class="in-tab" data-in="ocr">OCR Layout (<span id="count-ocr">0</span>)</button>
+                                    <button class="in-tab" data-in="content">Scenarios & Safety</button>
+                                    <button class="in-tab" data-in="raw">Raw JSON</button>
+                                </div>
+
+                                <div class="in-content active" id="in-objects">
+                                    <ul class="list-group" id="list-objects"></ul>
+                                </div>
+                                <div class="in-content" id="in-ocr">
+                                    <ul class="list-group" id="list-ocr"></ul>
+                                </div>
+                                <div class="in-content" id="in-content">
+                                    <div class="scenario-details" id="scenario-details"></div>
+                                </div>
+                                <div class="in-content" id="in-raw">
+                                    <pre class="json-viewer"><code id="json-code"></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: HUMAN REVIEW QUEUE -->
+            <section id="tab-review" class="tab-pane">
+                <div class="card">
+                    <div class="review-header">
+                        <h2>Human-in-the-loop Review Queue</h2>
+                        <p>Flagged or borderline images automatically route here for auditor approval.</p>
+                    </div>
+                    <div id="review-list" class="review-list">
+                        <p class="text-muted">Loading review queue...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: MODEL BENCHMARKS -->
+            <section id="tab-benchmarks" class="tab-pane">
+                <div class="card">
+                    <h2>Model Selection & Performance Benchmarking</h2>
+                    <p class="subtitle">Evaluated across 1,000 standard vision intelligence evaluation datasets.</p>
+                    <div class="table-responsive">
+                        <table class="benchmark-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Candidate</th>
+                                    <th>Object mAP</th>
+                                    <th>OCR WER</th>
+                                    <th>Safety Recall</th>
+                                    <th>P95 Latency</th>
+                                    <th>Cost / 1K</th>
+                                    <th>Key Advantage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="benchmark-rows">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: TEST DATASET -->
+            <section id="tab-dataset" class="tab-pane">
+                <div class="card">
+                    <h2>Test Dataset & Sample Outputs</h2>
+                    <p class="subtitle">Click any sample to execute immediate pipeline benchmark.</p>
+                    <div class="dataset-grid" id="dataset-grid">
+                        <!-- Dynamic sample cards -->
                     </div>
                 </div>
             </section>
         </main>
     </div>
+
     <script src="/static/js/app.js"></script>
 </body>
 </html>
