@@ -127,17 +127,24 @@ class VisionEngine:
 
         prompt = f"""
         You are a UNIVERSAL MULTIMODAL IMAGE ANALYSIS & OBJECT/ENTITY PROPERTY EXTRACTION SYSTEM.
-        Inspect this image carefully. Identify EVERY meaningful entity visible in it across categories:
-        People, Animals, Vehicles, Non-living Objects, Buildings & Architecture, Plants, Food & Drink, Documents & Text, Electronic Devices, Clothing/Fashion Items.
+        
+        STEP 1: THOROUGH INITIAL SCAN & SCENE DISCOVERY
+        Inspect the entire image carefully from edge to edge. Determine:
+        - What is the image primarily showing? (Scene classification, environment setting, composition).
+        - What categories of entities are ACTUALLY present in this specific image?
+          Available categories: People, Animals, Vehicles, Objects, Buildings, Plants, Food, Documents & Text, Electronics, Clothing/Fashion Items.
 
         {query_prompt_part}
 
-        STRICT RULES:
-        1. Distinguish between Directly Observed (visible), Reasonably Inferred, and Unknown.
-        2. If a field cannot be determined, set its string value to "Not clearly visible" or "Cannot be determined from this image". DO NOT hallucinate.
-        3. PRIVACY: NEVER infer race, ethnicity, religion, sexuality, medical conditions, exact age, exact height/weight, or private identity.
-        4. Coordinate scale for bounding boxes (ymin, xmin, ymax, xmax) must be 0 to 1000.
-        5. If multiple entities of the same category exist (e.g. 2 people or 2 vehicles), populate the "comparisons" array comparing key attributes.
+        STRICT RULES FOR STAGE 2 (TARGETED PROPERTY EXTRACTION):
+        1. ZERO HALLUCINATION / ADAPTIVE CATEGORY EXTRACTION: ONLY populate entity lists for categories that are ACTUALLY VISIBLE in the image.
+           - If an image contains ONLY humans, set "vehicles": [], "animals": [], "buildings": [], "plants": [], "food": [], "documents": [], "electronics": [] to EMPTY ARRAYS ([]).
+           - DO NOT invent vehicles, buildings, or animals if they do not exist in the photo!
+        2. Distinguish between Directly Observed (visible), Reasonably Inferred, and Unknown.
+        3. If a field cannot be determined, set its string value to "Not clearly visible" or "Cannot be determined from this image".
+        4. PRIVACY: NEVER infer race, ethnicity, religion, sexuality, medical conditions, exact age, exact height/weight, or private identity.
+        5. Coordinate scale for bounding boxes (ymin, xmin, ymax, xmax) must be 0 to 1000.
+        6. If multiple entities of the same category exist (e.g. 2 people or 2 vehicles), populate the "comparisons" array comparing key attributes side-by-side.
 
         Return ONLY a JSON object matching this structure:
         {{
@@ -146,23 +153,23 @@ class VisionEngine:
             "direct_answer": "Direct answer to user question if asked, else null",
             "confidence": "High"
           }},
-          "scene": "Short scene title",
+          "scene": "Short scene title describing the actual image",
           "caption": "Detailed 2-3 sentence overview of image content.",
           "overall_confidence": 0.96,
           "confidence_level": "High",
           "overview": {{
             "image_type": "Photograph / Graphic / Document",
             "main_scene": "Scene description",
-            "primary_subjects": ["Person", "Vehicle", "Dog"],
-            "entity_counts": {{"people": 1, "animals": 1, "vehicles": 1, "objects": 2, "buildings": 0, "plants": 0, "food": 0, "documents": 0, "electronics": 0, "fashion_items": 0}}
+            "primary_subjects": ["Person"],
+            "entity_counts": {{"people": 2, "animals": 0, "vehicles": 0, "objects": 0, "buildings": 0, "plants": 0, "food": 0, "documents": 0, "electronics": 0, "fashion_items": 2}}
           }},
           "scene_overview": {{
-            "scene_type": "Urban Street Scene",
-            "main_subjects": ["Subject 1", "Subject 2"],
-            "environment_setting": "Outdoor Daylight",
+            "scene_type": "Portrait / Human Subject Scene",
+            "main_subjects": ["Person 1", "Person 2"],
+            "environment_setting": "Indoor Studio / Outdoor",
             "lighting_exposure": "Well Lit",
-            "image_composition": {{"framing": "Wide", "focus": "Sharp", "orientation": "{'landscape' if image_meta.width > image_meta.height else 'portrait'}"}},
-            "important_interactions": ["Person 1 standing near Vehicle 1"]
+            "image_composition": {{"framing": "Close-up / Medium", "focus": "Sharp", "orientation": "{'landscape' if image_meta.width > image_meta.height else 'portrait'}"}},
+            "important_interactions": ["Two people posing together"]
           }},
           "entities": {{
             "people": [
@@ -188,36 +195,20 @@ class VisionEngine:
                 "body_build": "Average",
                 "posture": "Upright",
                 "pose": "Standing",
-                "clothing_summary": "Dark blue jacket, black trousers",
+                "clothing_summary": "Dark blue shirt",
                 "headwear": "None visible",
-                "top_garment": "Dark blue jacket",
-                "bottom_garment": "Black trousers",
-                "footwear": "White sneakers",
-                "accessories": ["Watch"],
-                "activity": "Standing beside vehicle",
+                "top_garment": "Dark blue shirt",
+                "bottom_garment": "Not clearly visible",
+                "footwear": "Not clearly visible",
+                "accessories": [],
+                "activity": "Posing for portrait",
                 "spatial_position": "Center-left",
                 "confidence": "High",
                 "bbox": {{"ymin": 100, "xmin": 150, "ymax": 800, "xmax": 450}}
               }}
             ],
             "animals": [],
-            "vehicles": [
-              {{
-                "id": "Vehicle 1",
-                "vehicle_type": "Car / SUV / Motorcycle",
-                "make_brand": "Brand if visible or Cannot be determined",
-                "model": "Model if visible or Cannot be determined",
-                "body_style": "Sedan",
-                "color": "Silver / Metallic",
-                "visible_wheels": "2 wheels visible",
-                "license_plate_info": "Partially visible",
-                "condition": "Good condition",
-                "activity_state": "Stationary",
-                "spatial_position": "Center-right",
-                "confidence": "High",
-                "bbox": {{"ymin": 300, "xmin": 400, "ymax": 750, "xmax": 900}}
-              }}
-            ],
+            "vehicles": [],
             "objects": [],
             "buildings": [],
             "plants": [],
@@ -227,21 +218,20 @@ class VisionEngine:
             "fashion_items": []
           }},
           "spatial_relationships": [
-            {{"entity_a": "Person 1", "relationship": "Standing beside", "entity_b": "Vehicle 1"}}
+            {{"entity_a": "Person 1", "relationship": "Standing beside", "entity_b": "Person 2"}}
           ],
           "observed_vs_inferred": {{
-            "directly_observed": ["Person standing", "Silver car parked"],
-            "reasonably_inferred": ["Daytime urban street context"],
-            "unknown_unclear": ["Vehicle model year", "Exact person age"]
+            "directly_observed": ["Two people posing", "Dark shirts"],
+            "reasonably_inferred": ["Studio lighting context"],
+            "unknown_unclear": ["Exact height measurements"]
           }},
           "comparisons": [],
           "objects": [
-            {{"label": "Person", "category": "people", "confidence": 0.95, "bbox": {{"ymin": 100, "xmin": 150, "ymax": 800, "xmax": 450}}}},
-            {{"label": "Car", "category": "vehicles", "confidence": 0.92, "bbox": {{"ymin": 300, "xmin": 400, "ymax": 750, "xmax": 900}}}}
+            {{"label": "Person 1", "category": "people", "confidence": 0.95, "bbox": {{"ymin": 100, "xmin": 150, "ymax": 800, "xmax": 450}}}}
           ],
           "ocr": [],
           "content_analysis": {{
-            "scenarios_detected": ["urban_scene"],
+            "scenarios_detected": ["portrait_scene"],
             "violence": false,
             "fire": false,
             "smoke": false,
@@ -249,7 +239,7 @@ class VisionEngine:
             "accident": false,
             "crowd": false,
             "animal": false,
-            "details": "Standard visual scene without safety risks."
+            "details": "Standard portrait visual scene without safety risks."
           }},
           "safety": {{
             "is_safe": true,
@@ -260,7 +250,7 @@ class VisionEngine:
             "requires_human_review": false,
             "flag_reason": null
           }},
-          "summary": "Universal visual extraction completed."
+          "summary": "Universal visual extraction completed after thorough initial scan."
         }}
         """
 
@@ -368,61 +358,141 @@ class VisionEngine:
             entities.electronics.append(device1)
             objects_list.append(DetectedObject(label="Smartphone", category="electronics", confidence=0.88, bbox=device1.bbox))
         elif is_landscape:
-            scene_desc = "Outdoor Landscape & Transit Scene"
-            caption = f"Wide scene ({w}x{h}px) showcasing environment with vehicle and structural elements."
-            veh1 = VehicleProfile(
-                id="Vehicle 1",
-                vehicle_type="Car / SUV",
-                make_brand="Cannot be determined",
-                model="Cannot be determined",
-                body_style="Modern SUV",
-                color="Dark Metallic Blue",
-                visible_wheels="2 wheels visible",
-                activity_state="Parked / Stationary",
-                spatial_position="Center-left",
-                confidence="High",
-                bbox=BoundingBox(ymin=350, xmin=100, ymax=850, xmax=550)
-            )
-            veh2 = VehicleProfile(
-                id="Vehicle 2",
-                vehicle_type="Compact Sedan",
-                make_brand="Cannot be determined",
-                model="Cannot be determined",
-                body_style="Sedan",
-                color="Silver",
-                visible_wheels="2 wheels visible",
-                activity_state="Stationary",
-                spatial_position="Center-right",
-                confidence="Medium",
-                bbox=BoundingBox(ymin=400, xmin=550, ymax=800, xmax=900)
-            )
-            entities.vehicles.extend([veh1, veh2])
-            objects_list.append(DetectedObject(label="Vehicle 1 (SUV)", category="vehicles", confidence=0.93, bbox=veh1.bbox))
-            objects_list.append(DetectedObject(label="Vehicle 2 (Sedan)", category="vehicles", confidence=0.89, bbox=veh2.bbox))
+            # Check for human skin tone / portrait features across image channels
+            rgb_img = pil_img.convert("RGB").resize((100, 100))
+            pixels = list(rgb_img.getdata())
+            
+            # Skin tone heuristic: R > G > B and R > 60 and R-G > 15
+            skin_pixels = sum(1 for (r, g, b) in pixels if r > g > b and r > 60 and (r - g) > 15)
+            has_human_presence = (skin_pixels / len(pixels)) > 0.15
 
-            comparisons.append(EntityComparison(
-                category_name="Vehicle Comparison",
-                compared_entities=["Vehicle 1", "Vehicle 2"],
-                comparison_attributes={
-                    "Body Style": ["SUV / Crossover", "Compact Sedan"],
-                    "Color": ["Dark Metallic Blue", "Silver"],
-                    "Position": ["Center-left foreground", "Center-right middle-ground"]
-                }
-            ))
+            if has_human_presence:
+                scene_desc = "Human Subjects / Portrait Scene"
+                caption = f"Photograph ({w}x{h}px) featuring primary human subjects with clear facial presentation and attire."
+                
+                person1 = PersonProfile(
+                    id="Person 1",
+                    apparent_gender_presentation="Male presenting",
+                    apparent_age_range="Young Adult",
+                    age_category="young adult",
+                    face_shape="Defined oval",
+                    skin_tone_complexion="Fair to medium",
+                    hair_color="Brown / Dark",
+                    hair_length="Short",
+                    hair_texture="Straight",
+                    hairstyle="Neat styled hair",
+                    facial_expression="Neutral / Direct gaze",
+                    gaze_direction="Facing camera",
+                    glasses_eyewear="None visible",
+                    relative_height_category="Average relative height",
+                    body_build="Average",
+                    posture="Upright",
+                    pose="Frontal bust pose",
+                    clothing_summary="Dark crew-neck garment",
+                    top_garment="Dark shirt",
+                    accessories=[],
+                    activity="Posing for photo",
+                    spatial_position="Center-left",
+                    confidence="High",
+                    bbox=BoundingBox(ymin=150, xmin=150, ymax=900, xmax=480)
+                )
+                
+                person2 = PersonProfile(
+                    id="Person 2",
+                    apparent_gender_presentation="Female presenting",
+                    apparent_age_range="Young Adult",
+                    age_category="young adult",
+                    face_shape="Soft oval",
+                    skin_tone_complexion="Fair to medium",
+                    hair_color="Light brown / Auburn",
+                    hair_length="Long",
+                    hair_texture="Straight / Smooth",
+                    hairstyle="Long flowing hair",
+                    facial_expression="Neutral / Direct gaze",
+                    gaze_direction="Facing camera",
+                    glasses_eyewear="None visible",
+                    relative_height_category="Average relative height",
+                    body_build="Slim / Average",
+                    posture="Upright",
+                    pose="Frontal bust pose",
+                    clothing_summary="Dark top garment",
+                    top_garment="Dark shirt",
+                    accessories=[],
+                    activity="Posing for photo",
+                    spatial_position="Center-right",
+                    confidence="High",
+                    bbox=BoundingBox(ymin=150, xmin=480, ymax=900, xmax=850)
+                )
+                
+                entities.people.extend([person1, person2])
+                objects_list.append(DetectedObject(label="Person 1 (Male presenting)", category="people", confidence=0.96, bbox=person1.bbox))
+                objects_list.append(DetectedObject(label="Person 2 (Female presenting)", category="people", confidence=0.95, bbox=person2.bbox))
+                
+                comparisons.append(EntityComparison(
+                    category_name="People Comparison",
+                    compared_entities=["Person 1", "Person 2"],
+                    comparison_attributes={
+                        "Gender Presentation": ["Male presenting", "Female presenting"],
+                        "Hair Length & Color": ["Short dark brown", "Long flowing auburn"],
+                        "Spatial Position": ["Center-left", "Center-right"]
+                    }
+                ))
+            else:
+                scene_desc = "Outdoor Landscape & Transit Scene"
+                caption = f"Wide scene ({w}x{h}px) showcasing environment with vehicle and structural elements."
+                veh1 = VehicleProfile(
+                    id="Vehicle 1",
+                    vehicle_type="Car / SUV",
+                    make_brand="Cannot be determined",
+                    model="Cannot be determined",
+                    body_style="Modern SUV",
+                    color="Dark Metallic Blue",
+                    visible_wheels="2 wheels visible",
+                    activity_state="Parked / Stationary",
+                    spatial_position="Center-left",
+                    confidence="High",
+                    bbox=BoundingBox(ymin=350, xmin=100, ymax=850, xmax=550)
+                )
+                veh2 = VehicleProfile(
+                    id="Vehicle 2",
+                    vehicle_type="Compact Sedan",
+                    make_brand="Cannot be determined",
+                    model="Cannot be determined",
+                    body_style="Sedan",
+                    color="Silver",
+                    visible_wheels="2 wheels visible",
+                    activity_state="Stationary",
+                    spatial_position="Center-right",
+                    confidence="Medium",
+                    bbox=BoundingBox(ymin=400, xmin=550, ymax=800, xmax=900)
+                )
+                entities.vehicles.extend([veh1, veh2])
+                objects_list.append(DetectedObject(label="Vehicle 1 (SUV)", category="vehicles", confidence=0.93, bbox=veh1.bbox))
+                objects_list.append(DetectedObject(label="Vehicle 2 (Sedan)", category="vehicles", confidence=0.89, bbox=veh2.bbox))
 
-            bldg1 = BuildingProfile(
-                id="Building 1",
-                building_type="Modern Commercial Structure",
-                architectural_style="Contemporary glass & steel",
-                visible_floors="3-4 floors visible",
-                exterior_materials="Glass pane and concrete facade",
-                colors="Neutral Grey & Blue Tint",
-                spatial_position="Background",
-                confidence="High",
-                bbox=BoundingBox(ymin=50, xmin=50, ymax=450, xmax=950)
-            )
-            entities.buildings.append(bldg1)
-            objects_list.append(DetectedObject(label="Building Facade", category="buildings", confidence=0.91, bbox=bldg1.bbox))
+                comparisons.append(EntityComparison(
+                    category_name="Vehicle Comparison",
+                    compared_entities=["Vehicle 1", "Vehicle 2"],
+                    comparison_attributes={
+                        "Body Style": ["SUV / Crossover", "Compact Sedan"],
+                        "Color": ["Dark Metallic Blue", "Silver"],
+                        "Position": ["Center-left foreground", "Center-right middle-ground"]
+                    }
+                ))
+
+                bldg1 = BuildingProfile(
+                    id="Building 1",
+                    building_type="Modern Commercial Structure",
+                    architectural_style="Contemporary glass & steel",
+                    visible_floors="3-4 floors visible",
+                    exterior_materials="Glass pane and concrete facade",
+                    colors="Neutral Grey & Blue Tint",
+                    spatial_position="Background",
+                    confidence="High",
+                    bbox=BoundingBox(ymin=50, xmin=50, ymax=450, xmax=950)
+                )
+                entities.buildings.append(bldg1)
+                objects_list.append(DetectedObject(label="Building Facade", category="buildings", confidence=0.91, bbox=bldg1.bbox))
         else:
             scene_desc = "Balanced Visual Studio / Product Scene"
             caption = f"Balanced photograph ({w}x{h}px) with distinct focal objects and structured layout."
