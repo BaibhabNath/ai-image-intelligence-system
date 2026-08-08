@@ -117,7 +117,9 @@
                             </div>
 
                             <!-- Entity Count Pills Summary -->
-                            <div class="entity-counts-bar" id="entity-counts-bar"></div>
+                            <div class="entity-counts-bar" id="entity-counts-bar">
+                                <!-- Dynamic entity count pills -->
+                            </div>
 
                             <!-- Image & Overlay Canvas -->
                             <div class="image-viewer-container">
@@ -166,16 +168,21 @@
                                     <button class="in-tab" data-in="raw">Raw JSON</button>
                                 </div>
 
+                                <!-- 1. CATEGORIZED ENTITIES ACCORDION -->
                                 <div class="in-content active" id="in-entities">
-                                    <div class="categories-accordion" id="categories-accordion"></div>
+                                    <div class="categories-accordion" id="categories-accordion">
+                                        <!-- Dynamic Expandable Category Cards -->
+                                    </div>
                                 </div>
 
+                                <!-- 2. COMPARISON MODE -->
                                 <div class="in-content" id="in-comparisons">
                                     <div id="comparisons-container">
                                         <p class="text-muted">No multiple entities of the same category detected for comparison.</p>
                                     </div>
                                 </div>
 
+                                <!-- 3. SCENE & SPATIAL RELATIONSHIPS -->
                                 <div class="in-content" id="in-scene">
                                     <div class="scene-details-card">
                                         <div class="caption-card" style="margin-bottom: 12px;">
@@ -196,10 +203,13 @@
                                         </div>
 
                                         <h4 style="margin-top: 16px; margin-bottom: 8px;">Spatial & Visual Relationships</h4>
-                                        <ul class="relationship-list" id="spatial-relationships-list"></ul>
+                                        <ul class="relationship-list" id="spatial-relationships-list">
+                                            <!-- Dynamic relationship tags -->
+                                        </ul>
                                     </div>
                                 </div>
 
+                                <!-- 4. OBSERVED VS INFERRED -->
                                 <div class="in-content" id="in-evidence">
                                     <div class="evidence-grid">
                                         <div class="evidence-column col-observed">
@@ -217,10 +227,12 @@
                                     </div>
                                 </div>
 
+                                <!-- 5. MODERATION & SAFETY -->
                                 <div class="in-content" id="in-safety">
                                     <div class="scenario-details" id="scenario-details"></div>
                                 </div>
 
+                                <!-- 6. RAW JSON -->
                                 <div class="in-content" id="in-raw">
                                     <pre class="json-viewer"><code id="json-code"></code></pre>
                                 </div>
@@ -261,7 +273,9 @@
                                     <th>Key Advantage</th>
                                 </tr>
                             </thead>
-                            <tbody id="benchmark-rows"></tbody>
+                            <tbody id="benchmark-rows">
+                                <!-- Dynamic rows -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -272,7 +286,9 @@
                 <div class="card">
                     <h2>Sample Multimodal Test Scenes</h2>
                     <p class="subtitle">Click any sample scene below to test real-time entity extraction.</p>
-                    <div class="dataset-grid" id="dataset-grid"></div>
+                    <div class="dataset-grid" id="dataset-grid">
+                        <!-- Dynamic sample cards -->
+                    </div>
                 </div>
             </section>
         </main>
