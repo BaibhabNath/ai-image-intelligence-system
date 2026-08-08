@@ -7,15 +7,11 @@ class BoundingBox(BaseModel):
     ymax: float = Field(..., description="Bottom coordinate scaled 0-1000")
     xmax: float = Field(..., description="Right coordinate scaled 0-1000")
 
-# --- Entity Profiles ---
-
 class PersonProfile(BaseModel):
     id: str = Field(..., description="e.g. Person 1")
     apparent_gender_presentation: Optional[str] = Field(default="Not clearly visible")
     apparent_age_range: Optional[str] = Field(default="Cannot be determined")
     age_category: Optional[str] = Field(default="Cannot be determined")
-    
-    # Facial Characteristics
     face_shape: Optional[str] = Field(default="Not clearly visible")
     skin_tone_complexion: Optional[str] = Field(default="Not clearly visible")
     hair_color: Optional[str] = Field(default="Not clearly visible")
@@ -29,22 +25,16 @@ class PersonProfile(BaseModel):
     gaze_direction: Optional[str] = Field(default="Not clearly visible")
     glasses_eyewear: Optional[str] = Field(default="Not clearly visible")
     visible_marks: Optional[str] = Field(default="Not clearly visible")
-    
-    # Physical Appearance
     relative_height_category: Optional[str] = Field(default="Cannot be determined from this image")
     body_build: Optional[str] = Field(default="Not clearly visible")
     posture: Optional[str] = Field(default="Not clearly visible")
     pose: Optional[str] = Field(default="Not clearly visible")
-    
-    # Clothing & Accessories
     clothing_summary: Optional[str] = Field(default="Not clearly visible")
     headwear: Optional[str] = Field(default="None visible")
     top_garment: Optional[str] = Field(default="Not clearly visible")
     bottom_garment: Optional[str] = Field(default="Not clearly visible")
     footwear: Optional[str] = Field(default="Not clearly visible")
     accessories: List[str] = Field(default_factory=list)
-    
-    # Activity & Spatial
     activity: Optional[str] = Field(default="Not clearly visible")
     spatial_position: Optional[str] = Field(default="Center")
     confidence: str = Field(default="High")
