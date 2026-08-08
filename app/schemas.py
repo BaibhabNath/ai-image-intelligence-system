@@ -226,7 +226,7 @@ class ImageMetadata(BaseModel):
 class ImageOverview(BaseModel):
     image_type: str = Field(default="General Photograph")
     main_scene: str = Field(default="Unspecified Scene")
-    primary_subjects: List[str] = Field(default_factory=list)
+    primary_subjects: List[str] = Field(default="Unspecified")
     entity_counts: Dict[str, int] = Field(default_factory=dict)
 
 class DetectedObject(BaseModel):
@@ -251,7 +251,7 @@ class ImageAnalysisResponse(BaseModel):
     overall_confidence: float
     caption: str
     scene: str
-    overview: ImageOverview
+    overview: ImageOverview = Field(default_factory=ImageOverview)
     entities: DetectedEntities = Field(default_factory=DetectedEntities)
     scene_overview: SceneOverview = Field(default_factory=SceneOverview)
     spatial_relationships: List[SpatialRelationship] = Field(default_factory=list)
